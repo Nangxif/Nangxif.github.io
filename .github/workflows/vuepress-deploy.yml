@@ -5,16 +5,13 @@ on:
     branches:
       - master
 
-  # 允许在 GitHub Actions 页面手动执行
   workflow_dispatch:
 
-# GitHub Pages 所需权限
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# 防止同时部署多个版本
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -26,11 +23,9 @@ jobs:
     steps:
       # 拉取代码
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v6
 
-      # 安装 Node.js
+      # Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -46,23 +41,23 @@ jobs:
         run: npm ci
 
       # 构建 VitePress
-      - name: Build
+      - name: Build VitePress
         run: npm run docs:build
 
-      # 上传构建产物
+      # 上传 VitePress 构建结果
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: docs/.vitepress/dist
 
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     needs: build
 
     runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Deploy to GitHub Pages
